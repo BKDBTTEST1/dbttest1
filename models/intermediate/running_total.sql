@@ -1,3 +1,6 @@
+{{ config(materialized="table") }}
+
+with account_transactions as (select * from {{ ref("account_transactions") }})
 select
     transaction_id,
     account_id,
@@ -13,4 +16,4 @@ select
             else null
         end
     ) over (partition by account_id order by transaction_date) as running_total
-from test.raw.account_transactions
+from account_transactions

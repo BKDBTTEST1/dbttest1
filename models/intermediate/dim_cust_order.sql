@@ -1,6 +1,8 @@
-{{ config(materialized="view") }}
+{{ config(materialized="table") }}
 
 with
+    customers as (select * from {{ ref("customers") }}),
+    orders as (select * from {{ ref("orders") }}),
     orderanalyticscte as (
         select
             c.customerid,
@@ -31,8 +33,8 @@ with
             lag(o.orderdate, 1) over (
                 partition by o.customerid order by o.orderdate asc, o.orderid asc
             ) as previousorderdate
-        from test.raw.customers c
-        inner join test.raw.orders o on c.customerid = o.customerid
+        from customers c
+        inner join orders o on c.customerid = o.customerid
     )
 -- Final Selection & Calculations
 select
